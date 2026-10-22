@@ -76,16 +76,35 @@ export interface Payment {
   updatedAt: string;
 }
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   message?: string;
   data: T;
-  meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    totalPages?: number;
-  };
+  meta?: PaginationMeta;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T[];
+  meta: PaginationMeta;
+}
+
+export interface ApiErrorResponse {
+  success: false;
+  message: string;
+  errorSources?: Array<{
+    path: string | number;
+    message: string;
+  }>;
+  stack?: string;
 }
 
 export interface PropertyFilterParams {

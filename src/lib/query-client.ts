@@ -30,3 +30,42 @@ export function getQueryClient(): QueryClient {
     return browserQueryClient;
   }
 }
+
+/**
+ * Centralized query key factory for predictable caching and invalidation across the application.
+ */
+export const queryKeys = {
+  auth: {
+    all: ["auth"] as const,
+    currentUser: () => [...queryKeys.auth.all, "me"] as const,
+  },
+  properties: {
+    all: ["properties"] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.properties.all, "list", filters ?? {}] as const,
+    detail: (id: string) => [...queryKeys.properties.all, "detail", id] as const,
+    categories: () => [...queryKeys.properties.all, "categories"] as const,
+  },
+  rentals: {
+    all: ["rentals"] as const,
+    myRentals: () => [...queryKeys.rentals.all, "my"] as const,
+    detail: (id: string) => [...queryKeys.rentals.all, "detail", id] as const,
+  },
+  payments: {
+    all: ["payments"] as const,
+    myPayments: () => [...queryKeys.payments.all, "my"] as const,
+  },
+  landlord: {
+    all: ["landlord"] as const,
+    properties: () => [...queryKeys.landlord.all, "properties"] as const,
+    requests: () => [...queryKeys.landlord.all, "requests"] as const,
+    stats: () => [...queryKeys.landlord.all, "stats"] as const,
+  },
+  admin: {
+    all: ["admin"] as const,
+    users: (filters?: Record<string, unknown>) =>
+      [...queryKeys.admin.all, "users", filters ?? {}] as const,
+    properties: () => [...queryKeys.admin.all, "properties"] as const,
+    stats: () => [...queryKeys.admin.all, "stats"] as const,
+  },
+};

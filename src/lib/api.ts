@@ -1,47 +1,56 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { API_BASE_URL, AUTH_TOKEN_KEY } from "./constants";
+import { parseApiError } from "./error";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 30000, // 30s timeout
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Enables sending and receiving cookies across origins
+  withCredentials: true, // Send HTTP-only session cookies
 });
 
-// Request interceptor: attach token from localStorage if available
+// Storage token helper functions
+export function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+export function setStoredToken(token: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
+}
+
+export function removeStoredToken(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+}
+
+// Request interceptor: attach Authorization header if token exists
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem(AUTH_TOKEN_KEY);
-      if (token && config.headers && !config.headers.Authorization) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = getStoredToken();
+    if (token && config.headers && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(parseApiError(error))
 );
 
-// Response interceptor: standardize error messages
+// Response interceptor: standardize error messages through parseApiError
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<{ message?: string; error?: string }>) => {
-    const message =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.message ||
-      "An unexpected error occurred. Please try again.";
+  (error: AxiosError) => {
+    const parsed = parseApiError(error);
 
-    // If unauthorized, clean up client state when running in browser
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      // Keep state clean on expired or invalid token
-      if (window.location.pathname.startsWith("/dashboard")) {
-        // Option to redirect to login if session expired on a protected page
-      }
+    // If unauthorized (401), clean up expired token
+    if (parsed.status === 401 && typeof window !== "undefined") {
+      removeStoredToken();
     }
 
-    return Promise.reject(new Error(message));
+    return Promise.reject(parsed);
   }
 );
 

@@ -56,6 +56,28 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_key
 1. **Authentication:**
    - The Axios client includes `withCredentials: true` to support secure HTTP-only session cookies.
    - For environments utilizing Bearer tokens, the request interceptor automatically injects `Authorization: Bearer <token>` from `localStorage`.
-2. **Error Handling:**
-   - Standard response payload format: `{ success: boolean, message?: string, data?: any }`.
-   - On error, `api.ts` extracts the error message and forwards it cleanly to TanStack Query and Sonner toast handlers.
+2. **Error Handling (`src/lib/error.ts`):**
+   - Standard response payload format: `{ success: boolean, message?: string, data?: any, errorSources?: [{ path, message }] }`.
+   - On error, `api.ts` parses the error with `parseApiError`, generating an `AppError` instance containing normalized error messages and mapped `fieldErrors`.
+   - On `401 Unauthorized`, expired tokens are safely evicted from client storage.
+
+---
+
+## 4. TanStack Query Caching & Query Keys Factory (`src/lib/query-client.ts`)
+
+Centralized query keys ensure predictable cache invalidation upon mutations:
+
+```typescript
+import { queryKeys } from "@/lib/query-client";
+
+// Fetching properties
+useQuery({
+  queryKey: queryKeys.properties.list(filters),
+  queryFn: () => propertiesService.getAll(filters),
+});
+
+// Invalidating queries after property creation or status update
+queryClient.invalidateQueries({ queryKey: queryKeys.properties.all });
+queryClient.invalidateQueries({ queryKey: queryKeys.landlord.properties() });
+queryClient.invalidateQueries({ queryKey: queryKeys.rentals.myRentals() });
+```

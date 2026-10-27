@@ -265,3 +265,33 @@ export const MOCK_PAYMENTS: import("@/types").Payment[] = [
   },
 ];
 
+export const MOCK_REVIEWS: import("@/types").Review[] = [
+  {
+    id: "rev-1",
+    propertyId: "prop-101",
+    tenantId: "tenant-1",
+    tenant: {
+      name: "Marcus Vance",
+    },
+    rating: 5,
+    comment:
+      "Spectacular penthouse! The skyline views at sunset are breathtaking, and the gym and infinity pool are top-notch.",
+    createdAt: "2026-02-14T10:00:00.000Z",
+    updatedAt: "2026-02-14T10:00:00.000Z",
+  },
+  {
+    id: "rev-2",
+    propertyId: "prop-101",
+    tenantId: "tenant-2",
+    tenant: {
+      name: "Elena Rostova",
+    },
+    rating: 5,
+    comment:
+      "Very responsive landlord. Smooth move-in process and security is extremely attentive. Highly recommend this residence.",
+    createdAt: "2026-01-20T16:30:00.000Z",
+    updatedAt: "2026-01-20T16:30:00.000Z",
+  },
+];
+
+

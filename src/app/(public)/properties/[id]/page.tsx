@@ -28,10 +28,14 @@ import {
   CheckCircle2,
   Sparkles,
   Lock,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import { RentalRequestDialog } from "@/components/properties/rental-request-dialog";
-import { Property } from "@/types";
+import { ReviewFormDialog } from "@/components/properties/review-form-dialog";
+import { reviewsService } from "@/services/reviews.service";
+import { MOCK_REVIEWS } from "@/lib/mock-data";
+import { Property, Review } from "@/types";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -80,11 +84,29 @@ function PropertyDetailsContent({ params }: PageProps) {
 
   // Resolve property from API or fallback mock fixtures
   const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+
+  const { data: reviewsData } = useQuery({
+    queryKey: queryKeys.reviews.byProperty(id),
+    queryFn: async () => {
+      try {
+        const res = await reviewsService.getByPropertyId(id);
+        return res?.data || [];
+      } catch {
+        return MOCK_REVIEWS.filter((r) => r.propertyId === id);
+      }
+    },
+  });
 
   const property: Property | undefined = useMemo(() => {
     if (apiResponse?.data) return apiResponse.data;
     return MOCK_FEATURED_PROPERTIES.find((p) => p.id === id);
   }, [apiResponse, id]);
+
+  const reviews: Review[] =
+    reviewsData && reviewsData.length > 0
+      ? reviewsData
+      : MOCK_REVIEWS.filter((r) => r.propertyId === id);
 
   const images =
     property?.images && property.images.length > 0
@@ -333,6 +355,82 @@ function PropertyDetailsContent({ params }: PageProps) {
               </CardContent>
             </Card>
           </div>
+
+          {/* Verified Tenant Reviews Section */}
+          <div id="reviews" className="border-t pt-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-foreground">Tenant Reviews & Ratings</h2>
+                  <Badge variant="outline" className="text-xs gap-1">
+                    <Star className="size-3 fill-amber-400 text-amber-400" />
+                    {reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "5.0"}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Verified feedback from tenants who completed their rental stay at this property
+                </p>
+              </div>
+
+              {isAuthenticated && user?.role === "TENANT" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsReviewDialogOpen(true)}
+                  className="font-semibold text-xs gap-1.5 self-start sm:self-auto"
+                >
+                  <Star className="size-3.5 text-amber-500" /> Write a Review
+                </Button>
+              )}
+            </div>
+
+            {reviews.length === 0 ? (
+              <div className="p-6 text-center border rounded-xl bg-muted/20 text-xs text-muted-foreground">
+                No tenant reviews published yet for this property.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {reviews.map((rev) => (
+                  <div
+                    key={rev.id}
+                    className="p-4 rounded-xl border border-border/80 bg-card space-y-2.5 shadow-xs"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs ring-1 ring-border">
+                          {rev.tenant?.name ? rev.tenant.name.slice(0, 2).toUpperCase() : "TN"}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-xs text-foreground">
+                            {rev.tenant?.name || "Verified Tenant"}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {new Date(rev.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`size-3.5 ${
+                              rev.rating >= star
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-muted-foreground/30"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-foreground/90 leading-relaxed">
+                      &quot;{rev.comment}&quot;
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column: Sticky Rental Request Booking Card */}
@@ -411,11 +509,19 @@ function PropertyDetailsContent({ params }: PageProps) {
       </div>
 
       {property && (
-        <RentalRequestDialog
-          property={property}
-          open={isRequestDialogOpen}
-          onOpenChange={setIsRequestDialogOpen}
-        />
+        <>
+          <RentalRequestDialog
+            property={property}
+            open={isRequestDialogOpen}
+            onOpenChange={setIsRequestDialogOpen}
+          />
+          <ReviewFormDialog
+            propertyId={property.id}
+            propertyTitle={property.title}
+            open={isReviewDialogOpen}
+            onOpenChange={setIsReviewDialogOpen}
+          />
+        </>
       )}
     </div>
   );

@@ -61,6 +61,17 @@ export interface RentalRequest {
   updatedAt: string;
 }
 
+export interface Review {
+  id: string;
+  propertyId: string;
+  tenantId: string;
+  tenant?: Partial<User>;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Payment {
   id: string;
   rentalRequestId: string;

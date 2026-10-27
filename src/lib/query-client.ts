@@ -68,4 +68,8 @@ export const queryKeys = {
     properties: () => [...queryKeys.admin.all, "properties"] as const,
     stats: () => [...queryKeys.admin.all, "stats"] as const,
   },
+  reviews: {
+    all: ["reviews"] as const,
+    byProperty: (propertyId: string) => [...queryKeys.reviews.all, "property", propertyId] as const,
+  },
 };

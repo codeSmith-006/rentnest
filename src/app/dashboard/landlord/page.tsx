@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PropertyFormDialog } from "@/components/properties/property-form-dialog";
+import { IncomingRequestsSection } from "@/components/landlord/incoming-requests-section";
 import {
   Dialog,
   DialogContent,
@@ -367,6 +368,9 @@ export default function LandlordDashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Incoming Rental Inquiries Management */}
+      <IncomingRequestsSection />
 
       {/* Property Create/Edit Dialog */}
       <PropertyFormDialog

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/auth.store";
 import { rentalsService } from "@/services/rentals.service";
@@ -14,6 +13,7 @@ import { RentalRequest, Payment, RentalStatus } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PaymentCheckoutDialog } from "@/components/payments/payment-checkout-dialog";
 import {
   Table,
   TableBody,
@@ -32,7 +32,6 @@ import {
   ExternalLink,
   Calendar,
   AlertCircle,
-  Loader2,
   Receipt,
   DollarSign,
 } from "lucide-react";
@@ -87,10 +86,9 @@ function getStatusBadge(status: RentalStatus) {
 }
 
 export default function TenantDashboardPage() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const [payingRentalId, setPayingRentalId] = useState<string | null>(null);
+  const [selectedRentalForPayment, setSelectedRentalForPayment] = useState<RentalRequest | null>(null);
 
   // 1. Fetch Tenant's Rental Requests from Backend API
   const {
@@ -141,34 +139,6 @@ export default function TenantDashboardPage() {
       }
     },
   });
-
-  // Pay Now Handler calling real backend payments session
-  const handlePayNow = async (rental: RentalRequest) => {
-    setPayingRentalId(rental.id);
-    try {
-      const response = await paymentsService.createSession({
-        rentalRequestId: rental.id,
-        gateway: "stripe",
-      });
-
-      if (response?.data?.checkoutUrl) {
-        toast.loading("Redirecting to secure payment checkout...");
-        window.location.assign(response.data.checkoutUrl);
-      } else {
-        toast.info("Payment session created. Navigating to payment confirmation.");
-        router.push(`/payment/success?session_id=mock_session_${rental.id}`);
-      }
-    } catch (err: unknown) {
-      if (err instanceof AppError) {
-        toast.error(err.message);
-      } else {
-        toast.info("Navigating to payment checkout confirmation...");
-        router.push(`/payment/success?session_id=mock_session_${rental.id}`);
-      }
-    } finally {
-      setPayingRentalId(null);
-    }
-  };
 
   const rentals: RentalRequest[] = rentalsData && rentalsData.length > 0 ? rentalsData : MOCK_RENTALS;
   const payments: Payment[] = paymentsData && paymentsData.length > 0 ? paymentsData : MOCK_PAYMENTS;
@@ -349,21 +319,11 @@ export default function TenantDashboardPage() {
                       {isApproved && !isPaid && (
                         <Button
                           size="sm"
-                          onClick={() => handlePayNow(rental)}
-                          disabled={payingRentalId === rental.id}
+                          onClick={() => setSelectedRentalForPayment(rental)}
                           className="font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
                         >
-                          {payingRentalId === rental.id ? (
-                            <>
-                              <Loader2 className="size-3.5 animate-spin" />
-                              Connecting...
-                            </>
-                          ) : (
-                            <>
-                              <CreditCard className="size-3.5" />
-                              Pay Rent (${rental.totalAmount})
-                            </>
-                          )}
+                          <CreditCard className="size-3.5" />
+                          Pay Rent (${rental.totalAmount})
                         </Button>
                       )}
 
@@ -468,6 +428,12 @@ export default function TenantDashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      <PaymentCheckoutDialog
+        rental={selectedRentalForPayment}
+        open={Boolean(selectedRentalForPayment)}
+        onOpenChange={(open) => !open && setSelectedRentalForPayment(null)}
+      />
     </div>
   );
 }

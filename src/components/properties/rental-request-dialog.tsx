@@ -92,7 +92,7 @@ export function RentalRequestDialog({
   };
 
   const estimatedMonths = getMonthsDiff();
-  const estimatedTotal = property.price * estimatedMonths;
+  const estimatedTotal = Number(property.price ?? property.rent ?? 0) * estimatedMonths;
 
   const requestMutation = useMutation({
     mutationFn: (data: RentalRequestFormData) =>
@@ -209,7 +209,7 @@ export function RentalRequestDialog({
             <div className="flex justify-between text-muted-foreground">
               <span>Monthly Rate:</span>
               <span className="font-semibold text-foreground">
-                ${property.price.toLocaleString()} / mo
+                ${Number(property.price ?? property.rent ?? 0).toLocaleString()} / mo
               </span>
             </div>
             <div className="flex justify-between text-muted-foreground">

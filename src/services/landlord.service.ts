@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import { ApiResponse, Property, RentalRequest } from "@/types";
+import { normalizeProperty, RawPropertyData } from "./properties.service";
 
 export interface PropertyInput {
   title: string;
@@ -27,8 +28,15 @@ export interface LandlordStats {
 
 export const landlordService = {
   async getMyProperties(): Promise<ApiResponse<Property[]>> {
-    const response = await api.get<ApiResponse<Property[]>>("/landlord/properties");
-    return response.data;
+    const response = await api.get<ApiResponse<RawPropertyData[]>>("/landlord/properties");
+    const rawData = response.data;
+    const items = Array.isArray(rawData?.data)
+      ? rawData.data.map(normalizeProperty)
+      : [];
+    return {
+      ...rawData,
+      data: items,
+    };
   },
 
   async createProperty(data: PropertyInput): Promise<ApiResponse<Property>> {

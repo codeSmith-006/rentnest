@@ -101,13 +101,13 @@ function PropertyFormContent({
       location: propertyToEdit?.location || "",
       address: propertyToEdit?.address || "",
       city: propertyToEdit?.city || "Dhaka",
-      price: propertyToEdit?.price || 1200,
+      price: Number(propertyToEdit?.price ?? propertyToEdit?.rent ?? 1200),
       bedrooms: propertyToEdit?.bedrooms ?? 2,
       bathrooms: propertyToEdit?.bathrooms ?? 2,
-      squareFeet: propertyToEdit?.squareFeet || 1400,
-      propertyType: propertyToEdit?.propertyType || "Apartment",
-      category: propertyToEdit?.category || "Apartment",
-      isAvailable: propertyToEdit ? propertyToEdit.isAvailable : true,
+      squareFeet: Number(propertyToEdit?.squareFeet ?? propertyToEdit?.size ?? 1400),
+      propertyType: propertyToEdit?.propertyType || (typeof (propertyToEdit?.category as unknown) === "object" && propertyToEdit?.category !== null ? ((propertyToEdit?.category as unknown) as { name?: string }).name : propertyToEdit?.category) || "Apartment",
+      category: (typeof (propertyToEdit?.category as unknown) === "object" && propertyToEdit?.category !== null ? ((propertyToEdit?.category as unknown) as { name?: string }).name : propertyToEdit?.category) || "Apartment",
+      isAvailable: propertyToEdit ? Boolean(propertyToEdit.isAvailable ?? propertyToEdit.status === "AVAILABLE") : true,
     },
   });
 

@@ -29,19 +29,25 @@ export interface Property {
   location: string;
   address?: string;
   city?: string;
+  area?: string;
   price: number;
+  rent?: number | string;
   bedrooms: number;
   bathrooms: number;
   squareFeet?: number;
+  size?: number;
   propertyType: string;
   category?: string;
+  categoryId?: string;
   images: string[];
   amenities: string[];
   isAvailable: boolean;
+  status?: string;
   landlordId: string;
   landlord?: Partial<User>;
   createdAt: string;
   updatedAt: string;
+  _count?: { reviews?: number };
 }
 
 export interface RentalRequest {

@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import { ApiResponse, Property, User } from "@/types";
+import { normalizeProperty, RawPropertyData } from "./properties.service";
 
 export interface AdminStats {
   totalUsers: number;
@@ -20,8 +21,15 @@ export const adminService = {
   },
 
   async getAllProperties(): Promise<ApiResponse<Property[]>> {
-    const response = await api.get<ApiResponse<Property[]>>("/admin/properties");
-    return response.data;
+    const response = await api.get<ApiResponse<RawPropertyData[]>>("/admin/properties");
+    const rawData = response.data;
+    const items = Array.isArray(rawData?.data)
+      ? rawData.data.map(normalizeProperty)
+      : [];
+    return {
+      ...rawData,
+      data: items,
+    };
   },
 
   async deleteProperty(id: string): Promise<ApiResponse<{ message: string }>> {

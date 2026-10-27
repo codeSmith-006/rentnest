@@ -440,14 +440,14 @@ function PropertyDetailsContent({ params }: PageProps) {
               <div className="flex items-baseline justify-between">
                 <div>
                   <span className="text-3xl font-extrabold text-foreground">
-                    ${property.price.toLocaleString()}
+                    ${Number(property.price ?? property.rent ?? 0).toLocaleString()}
                   </span>
                   <span className="text-sm font-medium text-muted-foreground ml-1.5">
                     / month
                   </span>
                 </div>
-                <Badge variant={property.isAvailable ? "default" : "destructive"}>
-                  {property.isAvailable ? "Available" : "Rented"}
+                <Badge variant={property.isAvailable || property.status === "AVAILABLE" ? "default" : "destructive"}>
+                  {property.isAvailable || property.status === "AVAILABLE" ? "Available" : "Rented"}
                 </Badge>
               </div>
             </CardHeader>

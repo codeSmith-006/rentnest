@@ -422,7 +422,7 @@ export default function AdminDashboardPage() {
                           {prop.title}
                         </span>
                         <Badge variant="outline" className="text-[10px]">
-                          ${prop.price}/mo
+                          ${Number(prop.price ?? prop.rent ?? 0).toLocaleString()}/mo
                         </Badge>
                       </div>
                       <div className="text-xs text-muted-foreground">

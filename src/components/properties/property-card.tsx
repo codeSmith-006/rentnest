@@ -54,9 +54,13 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
           {/* Category / Type Badge */}
           <div className="absolute top-3 left-3 flex gap-1.5 z-10">
             <Badge variant="secondary" className="backdrop-blur-md bg-background/85 shadow-xs font-medium">
-              {property.propertyType || property.category || "Rental"}
+              {property.propertyType ||
+                (typeof (property.category as unknown) === "object" && property.category !== null
+                  ? ((property.category as unknown) as { name?: string }).name
+                  : property.category) ||
+                "Rental"}
             </Badge>
-            {property.isAvailable ? (
+            {property.isAvailable || property.status === "AVAILABLE" ? (
               <Badge variant="default" className="bg-emerald-600/90 text-white hover:bg-emerald-600 shadow-xs">
                 Available
               </Badge>
@@ -70,7 +74,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
           {/* Price Tag */}
           <div className="absolute bottom-3 right-3 z-10">
             <div className="px-3 py-1 rounded-lg bg-background/90 backdrop-blur-md text-foreground font-bold text-sm shadow-md border border-border/40">
-              ${property.price.toLocaleString()}
+              ${Number(property.price ?? property.rent ?? 0).toLocaleString()}
               <span className="text-xs font-normal text-muted-foreground ml-1">/mo</span>
             </div>
           </div>
@@ -85,7 +89,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
           </Link>
           <CardDescription className="flex items-center gap-1.5 text-xs text-muted-foreground line-clamp-1">
             <MapPin className="size-3.5 shrink-0 text-primary/70" />
-            <span className="truncate">{property.location || property.city || "Prime Location"}</span>
+            <span className="truncate">{property.location || [property.area, property.city].filter(Boolean).join(", ") || property.address || "Prime Location"}</span>
           </CardDescription>
         </CardHeader>
 
@@ -94,15 +98,15 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
           <div className="grid grid-cols-3 gap-2 py-2 px-2.5 rounded-lg bg-muted/40 text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5 truncate">
               <Bed className="size-3.5 text-foreground/70 shrink-0" />
-              <span className="truncate">{property.bedrooms} {property.bedrooms === 1 ? "Bed" : "Beds"}</span>
+              <span className="truncate">{property.bedrooms ?? 1} {property.bedrooms === 1 ? "Bed" : "Beds"}</span>
             </div>
             <div className="flex items-center gap-1.5 truncate">
               <Bath className="size-3.5 text-foreground/70 shrink-0" />
-              <span className="truncate">{property.bathrooms} {property.bathrooms === 1 ? "Bath" : "Baths"}</span>
+              <span className="truncate">{property.bathrooms ?? 1} {property.bathrooms === 1 ? "Bath" : "Baths"}</span>
             </div>
             <div className="flex items-center gap-1.5 truncate">
               <Maximize2 className="size-3.5 text-foreground/70 shrink-0" />
-              <span className="truncate">{property.squareFeet ? `${property.squareFeet} sqft` : "Spacious"}</span>
+              <span className="truncate">{property.squareFeet || property.size ? `${property.squareFeet || property.size} sqft` : "Spacious"}</span>
             </div>
           </div>
 

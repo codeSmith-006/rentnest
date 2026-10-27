@@ -126,7 +126,7 @@ export default function LandlordDashboardPage() {
   const pendingRequests = statsData?.pendingRequests ?? 1;
   const totalEarnings =
     statsData?.totalEarnings ??
-    properties.reduce((sum, p) => sum + (p.isAvailable ? 0 : p.price), 0);
+    properties.reduce((sum, p) => sum + (p.isAvailable ? 0 : Number(p.price ?? p.rent ?? 0)), 0);
 
   const handleOpenEdit = (prop: Property) => {
     setPropertyToEdit(prop);
@@ -302,7 +302,7 @@ export default function LandlordDashboardPage() {
 
                       <div className="text-xs text-muted-foreground flex items-center gap-2">
                         <span className="font-bold text-foreground">
-                          ${prop.price.toLocaleString()} / mo
+                          ${Number(prop.price ?? prop.rent ?? 0).toLocaleString()} / mo
                         </span>
                         <span>•</span>
                         <span>{prop.location}</span>

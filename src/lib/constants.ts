@@ -47,4 +47,5 @@ export const ROUTES = {
 } as const;
 
 export const AUTH_TOKEN_KEY = "rentnest_token";
+export const USER_ROLE_KEY = "rentnest_user_role";
 export const USER_STORAGE_KEY = "rentnest_user";

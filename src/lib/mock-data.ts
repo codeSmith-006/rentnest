@@ -294,4 +294,53 @@ export const MOCK_REVIEWS: import("@/types").Review[] = [
   },
 ];
 
+export const MOCK_USERS: import("@/types").User[] = [
+  {
+    id: "usr-admin-1",
+    name: "System Administrator",
+    email: "admin@rentnest.com",
+    role: "ADMIN",
+    phone: "+1 555-0199",
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+  },
+  {
+    id: "usr-landlord-1",
+    name: "Sophia Rahman",
+    email: "sophia.landlord@rentnest.com",
+    role: "LANDLORD",
+    phone: "+1 555-0144",
+    createdAt: "2026-01-15T10:00:00.000Z",
+    updatedAt: "2026-01-15T10:00:00.000Z",
+  },
+  {
+    id: "usr-landlord-2",
+    name: "Ahmed Karim",
+    email: "ahmed.k@rentnest.com",
+    role: "LANDLORD",
+    phone: "+1 555-0182",
+    createdAt: "2026-01-20T12:00:00.000Z",
+    updatedAt: "2026-01-20T12:00:00.000Z",
+  },
+  {
+    id: "usr-tenant-1",
+    name: "Sarah Jenkins",
+    email: "sarah.j@rentnest.com",
+    role: "TENANT",
+    phone: "+1 555-0122",
+    createdAt: "2026-02-01T15:00:00.000Z",
+    updatedAt: "2026-02-01T15:00:00.000Z",
+  },
+  {
+    id: "usr-tenant-2",
+    name: "David Kim",
+    email: "david.kim@rentnest.com",
+    role: "TENANT",
+    phone: "+1 555-0177",
+    createdAt: "2026-02-10T09:30:00.000Z",
+    updatedAt: "2026-02-10T09:30:00.000Z",
+  },
+];
+
+
 

@@ -24,6 +24,11 @@ export const adminService = {
     return response.data;
   },
 
+  async deleteProperty(id: string): Promise<ApiResponse<{ message: string }>> {
+    const response = await api.delete<ApiResponse<{ message: string }>>(`/admin/properties/${id}`);
+    return response.data;
+  },
+
   async getPlatformStats(): Promise<ApiResponse<AdminStats>> {
     const response = await api.get<ApiResponse<AdminStats>>("/admin/stats");
     return response.data;

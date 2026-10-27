@@ -29,6 +29,8 @@ import {
   Sparkles,
   Lock,
 } from "lucide-react";
+import { toast } from "sonner";
+import { RentalRequestDialog } from "@/components/properties/rental-request-dialog";
 import { Property } from "@/types";
 
 interface PageProps {
@@ -77,6 +79,8 @@ function PropertyDetailsContent({ params }: PageProps) {
   });
 
   // Resolve property from API or fallback mock fixtures
+  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+
   const property: Property | undefined = useMemo(() => {
     if (apiResponse?.data) return apiResponse.data;
     return MOCK_FEATURED_PROPERTIES.find((p) => p.id === id);
@@ -97,12 +101,12 @@ function PropertyDetailsContent({ params }: PageProps) {
     }
 
     if (user?.role === "LANDLORD" || user?.role === "ADMIN") {
-      alert(`As a ${user.role}, you cannot submit tenant rental requests.`);
+      toast.error(`As a ${user.role}, you cannot submit tenant rental requests.`);
       return;
     }
 
-    // Tenant is ready: route or open rental submission
-    router.push(`/dashboard/tenant?requestPropertyId=${id}`);
+    // Tenant is ready: open validated rental submission modal
+    setIsRequestDialogOpen(true);
   };
 
   if (isLoading) {
@@ -405,6 +409,14 @@ function PropertyDetailsContent({ params }: PageProps) {
           </Card>
         </div>
       </div>
+
+      {property && (
+        <RentalRequestDialog
+          property={property}
+          open={isRequestDialogOpen}
+          onOpenChange={setIsRequestDialogOpen}
+        />
+      )}
     </div>
   );
 }

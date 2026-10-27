@@ -114,6 +114,7 @@ export interface PropertyFilterParams {
   propertyType?: string;
   category?: string;
   bedrooms?: number;
+  bathrooms?: number;
   amenities?: string[];
   isAvailable?: boolean;
   search?: string;

@@ -14,7 +14,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { MapPin, Bed, Bath, Maximize2, Building2 } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize2, Building2, Sparkles } from "lucide-react";
 
 interface PropertyCardProps {
   property: Property;
@@ -30,9 +30,9 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
       : "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80";
 
   return (
-    <Card className="overflow-hidden flex flex-col justify-between group hover:shadow-lg transition-all duration-300 border-border/80 hover:border-primary/40">
+    <Card className="overflow-hidden flex flex-col justify-between group hover:shadow-lg transition-all duration-300 border-border/80 hover:border-primary/40 bg-card">
       <div>
-        {/* Thumbnail Image */}
+        {/* Thumbnail Image using next/image with fallback */}
         <div className="relative h-52 w-full overflow-hidden bg-muted">
           {!imageError ? (
             <Image
@@ -47,13 +47,13 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
           ) : (
             <div className="size-full flex flex-col items-center justify-center bg-muted text-muted-foreground gap-2">
               <Building2 className="size-10 opacity-30" />
-              <span className="text-xs">No image available</span>
+              <span className="text-xs">Image unavailable</span>
             </div>
           )}
 
           {/* Category / Type Badge */}
           <div className="absolute top-3 left-3 flex gap-1.5 z-10">
-            <Badge variant="secondary" className="backdrop-blur-md bg-background/80 shadow-xs font-medium">
+            <Badge variant="secondary" className="backdrop-blur-md bg-background/85 shadow-xs font-medium">
               {property.propertyType || property.category || "Rental"}
             </Badge>
             {property.isAvailable ? (
@@ -89,22 +89,42 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="pt-2">
+        <CardContent className="pt-2 space-y-3">
           {/* Key Specs */}
-          <div className="grid grid-cols-3 gap-2 py-2.5 px-3 rounded-lg bg-muted/40 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Bed className="size-3.5 text-foreground/70" />
-              <span>{property.bedrooms} {property.bedrooms === 1 ? "Bed" : "Beds"}</span>
+          <div className="grid grid-cols-3 gap-2 py-2 px-2.5 rounded-lg bg-muted/40 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 truncate">
+              <Bed className="size-3.5 text-foreground/70 shrink-0" />
+              <span className="truncate">{property.bedrooms} {property.bedrooms === 1 ? "Bed" : "Beds"}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Bath className="size-3.5 text-foreground/70" />
-              <span>{property.bathrooms} {property.bathrooms === 1 ? "Bath" : "Baths"}</span>
+            <div className="flex items-center gap-1.5 truncate">
+              <Bath className="size-3.5 text-foreground/70 shrink-0" />
+              <span className="truncate">{property.bathrooms} {property.bathrooms === 1 ? "Bath" : "Baths"}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Maximize2 className="size-3.5 text-foreground/70" />
-              <span>{property.squareFeet ? `${property.squareFeet} sqft` : "Spacious"}</span>
+            <div className="flex items-center gap-1.5 truncate">
+              <Maximize2 className="size-3.5 text-foreground/70 shrink-0" />
+              <span className="truncate">{property.squareFeet ? `${property.squareFeet} sqft` : "Spacious"}</span>
             </div>
           </div>
+
+          {/* Amenities Chips */}
+          {property.amenities && property.amenities.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {property.amenities.slice(0, 3).map((amenity) => (
+                <span
+                  key={amenity}
+                  className="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-md bg-muted/60 text-muted-foreground border border-border/50"
+                >
+                  <Sparkles className="size-2.5 mr-1 text-primary/60" />
+                  {amenity}
+                </span>
+              ))}
+              {property.amenities.length > 3 && (
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground border border-border/50">
+                  +{property.amenities.length - 3} more
+                </span>
+              )}
+            </div>
+          )}
         </CardContent>
       </div>
 
